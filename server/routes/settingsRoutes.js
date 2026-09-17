@@ -1,1 +1,1 @@
-const router=require('express').Router(),c=require('../controllers/settingsController');router.get('/',c.get);router.put('/',c.update);module.exports=router;
+const router=require('express').Router(),c=require('../controllers/settingsController');router.get('/',c.get);router.put('/',c.update);router.post('/rate-card/import',c.importRateCard);module.exports=router;

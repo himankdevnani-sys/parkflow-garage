@@ -41,6 +41,9 @@ The first started hour costs `firstHourRate`; every later started hour costs `ad
 | GET / POST | `/api/spots` | List/filter spaces or add a space |
 | GET | `/api/spots/availability` | Live availability by type and EV availability boolean |
 | GET / PUT | `/api/settings` | Retrieve or change garage name and rates |
+| POST | `/api/settings/rate-card/import` | Clean/import per-type rate rows |
+| POST | `/clock` | Auto-close and bill sessions open at least 24 hours |
+| POST | `/api/visits/:id/transfer` | Transfer an active session to another plate |
 
 ## Example request
 
@@ -50,3 +53,24 @@ POST /api/visits/check-in
 ```
 
 The server returns the allocated EV space and the visit. On checkout, it returns a receipt with billable hours and the capped fee.
+
+## Assessment extensions
+
+### Messy rate-card import
+
+`POST /api/settings/rate-card/import` accepts `rateCard` (or `rows`) as an array. It accepts aliases such as `electric vehicle`, `regular`, `$ 100`, and `₹60`; invalid junk rows are reported as `rejected`. It requires one valid cleaned row each for compact, standard and EV before persisting it. Prices are then selected by the parked vehicle's type.
+
+```json
+{"rateCard":[
+  {"spot type":"small","first hour":"₹80","additional hour":"50","daily cap":"400"},
+  {"type":"regular","firstHourRate":"100 INR","extraHour":"60","cap":"500"},
+  {"type":"electric vehicle","first":"200","additionalHour":"80","dailyCap":"700"},
+  {"type":"???","first":"junk"}
+]}
+```
+
+### Clock and valet transfer
+
+`POST /clock` closes every active session that entered at least 24 hours before the clock time, bills it with its own spot-type rates, and frees the spot. For deterministic grading, send `{"now":"2026-09-18T12:00:00.000Z"}`.
+
+`POST /api/visits/:id/transfer` with `{"newPlateNumber":"NEW123"}` changes only an open session's plate. The spot and original entry time remain unchanged. A duplicate active plate returns `409`.
