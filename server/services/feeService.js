@@ -1,0 +1,2 @@
+function calculateFee(checkInTime,checkOutTime,settings){const elapsed=new Date(checkOutTime)-new Date(checkInTime);if(elapsed<=0)throw new Error('Check-out time must be after check-in time');const durationHours=Math.ceil(elapsed/3600000);const fee=Math.min(settings.firstHourRate+Math.max(0,durationHours-1)*settings.additionalHourRate,settings.dailyCap);return {durationHours,fee}}
+module.exports={calculateFee};

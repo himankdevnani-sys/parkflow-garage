@@ -1,0 +1,1 @@
+const router=require('express').Router(),c=require('../controllers/visitController');router.post('/check-in',c.checkIn);router.post('/check-out',c.checkOut);router.get('/plate/:plateNumber',c.byPlate);router.get('/',c.list);module.exports=router;
